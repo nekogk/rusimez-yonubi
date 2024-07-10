@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rusimez Yonubi</title>
+    <style>
+        body {
+            font-family: "Rusimez_Basic", "Pretendard Variable", "Microsoft YaHei", sans-serif;
+        }
+
+        #inputArea {
+            width: 99.5%;
+            height: 400px;
+            font-size: 48px;
+            font-family: "Rusimez_Basic", "Pretendard Variable", "Microsoft YaHei", sans-serif;
+            border: 4px solid black;
+            border-radius: 10px
+        }
+
+        #outputArea {
+            width: 37.5%;
+            height: 400px;
+            font-size: 48px;
+            font-family: "Rusimez_Basic", "Pretendard Variable", "Microsoft YaHei", sans-serif;
+            margin-top: 20px;
+            border: 4px solid black;
+            border-radius: 10px
+        }
+    </style>
+</head>
+<body>
+    <textarea id="inputArea" placeholder="字輸入"></textarea>
+    <img src="key.png" style="float: right; margin-left: 20px; margin-top: 20px; height: 410px;" alt="Key" />
+    <textarea id="outputArea" readonly placeholder="Enter漢字輸出"></textarea>
+    <script>
+	let OutUni = 57600;
+        const charMap = {
+            'v': 17, 'b': 34, 'r': 51, 's': 68, 'w': 85, 'g': 102, 't': 119, 'q': 136, 'z': 153, 'x': 170, 'f': 187, 'c': 204, 'd': 221, 'e': 238, 'a': 255, 'y': 272
+        };
+        const naturalNumbers = {
+            'h': 0, 'n': 1, 'k': 2, ';': 3, 'l': 4, "'": 5, 'j': 6, 'u': 7, 'm': 8, 'i': 9, 'o': 10, 'p': 11, 'H': 12, 'N': 13, 'K': 14, ':': 15, 'J': 16
+        };
+        const adds = {
+            '[': '「', ']': '」', '{': '『', '}': '』', ',': '、', '.': '。', '/': '・'
+        };
+        let naturalIndex = 0;
+
+	const conversionMap = {
+            '\uE100': 'a', '\uE101': 'ə', '\uE102': 'e', '\uE103': 'o', '\uE104': 'u', 
+            '\uE105': 'v', '\uE106': 'i', '\uE107': 'ya', '\uE108': 'yə', '\uE109': 'ye',
+            '\uE10A': 'yo', '\uE10B': 'yu', '\uE10C': 'wa', '\uE10D': 'wə', '\uE10E': 'we',
+            '\uE10F': 'wo', '\uE110': 'wi', '\uE111': 'ga', '\uE112': 'gə', '\uE113': 'ge',
+            '\uE114': 'go', '\uE115': 'ğu', '\uE116': 'g', '\uE11D': 'ğa', '\uE11E': 'ğə',
+            '\uE11F': 'ğe', '\uE120': 'ğo', '\uE121': 'ği', '\uE122': 'ka', '\uE123': 'kə',
+            '\uE124': 'ke', '\uE125': 'ko', '\uE126': 'qu', '\uE127': 'k', '\uE12E': 'qa',
+            '\uE12F': 'qə', '\uE130': 'qe', '\uE131': 'qo', '\uE132': 'qi', '\uE133': 'na',
+            '\uE134': 'nə', '\uE135': 'ne', '\uE136': 'no', '\uE137': 'nu', '\uE138': 'n',
+            '\uE139': 'ni', '\uE13A': 'nya', '\uE13B': 'nyə', '\uE13C': 'nye', '\uE13D': 'nyo',
+            '\uE13E': 'nyu', '\uE144': 'da', '\uE145': 'də', '\uE146': 'de', '\uE147': 'do',
+            '\uE148': 'du', '\uE149': 'd', '\uE155': 'ta', '\uE156': 'tə', '\uE157': 'te',
+            '\uE158': 'to', '\uE159': 'tu', '\uE15A': 't', '\uE166': 'la', '\uE168': 'le',
+            '\uE169': 'lo', '\uE16A': 'lu', '\uE16C': 'li', '\uE16D': 'lya', '\uE16F': 'lye',
+            '\uE170': 'lyo', '\uE171': 'lyu', '\uE177': 'ra', '\uE179': 're', '\uE17A': 'ro',
+            '\uE17B': 'ru', '\uE17D': 'ri', '\uE17E': 'rya', '\uE180': 'rye', '\uE181': 'ryo',
+            '\uE182': 'ryu', '\uE188': 'ma', '\uE18A': 'me', '\uE18B': 'mo', '\uE18C': 'mu',
+            '\uE18E': 'mi', '\uE18F': 'mya', '\uE191': 'mye', '\uE192': 'myo', '\uE193': 'myu',
+            '\uE199': 'ba', '\uE19B': 'be', '\uE19C': 'bo', '\uE19D': 'bu', '\uE19F': 'bi',
+            '\uE1A0': 'bya', '\uE1A2': 'bye', '\uE1A3': 'byo', '\uE1A4': 'byu', '\uE1AA': 'pa',
+            '\uE1AC': 'pe', '\uE1AD': 'po', '\uE1AE': 'pu', '\uE1B0': 'pi', '\uE1B1': 'pya',
+            '\uE1B3': 'pye', '\uE1B4': 'pyo', '\uE1B5': 'pyu', '\uE1BB': 'sa', '\uE1BC': 'sə',
+            '\uE1BD': 'se', '\uE1BE': 'so', '\uE1BF': 'su', '\uE1C0': 's', '\uE1C1': 'ši',
+            '\uE1C2': 'ša', '\uE1C3': 'šə', '\uE1C4': 'še', '\uE1C5': 'šo', '\uE1C6': 'šu',
+            '\uE1CC': 'xa', '\uE1CD': 'xə', '\uE1CE': 'xe', '\uE1CF': 'xo', '\uE1D0': 'xu',
+            '\uE1D1': 'x', '\uE1D2': 'xi', '\uE1D3': 'xya', '\uE1D4': 'xyə', '\uE1D5': 'xye',
+            '\uE1D6': 'xyo', '\uE1D7': 'xyu', '\uE1D8': 'xwa', '\uE1D9': 'xwə', '\uE1DA': 'xwe',
+            '\uE1DB': 'xwo', '\uE1DC': 'xwi', '\uE1DD': 'za', '\uE1DE': 'zə', '\uE1DF': 'ze',
+            '\uE1E0': 'zo', '\uE1E1': 'zu', '\uE1E2': 'z', '\uE1E3': 'ji', '\uE1E4': 'ja',
+            '\uE1E5': 'jə', '\uE1E6': 'je', '\uE1E7': 'jo', '\uE1E8': 'ju', '\uE1EE': 'ca',
+            '\uE1EF': 'cə', '\uE1F0': 'ce', '\uE1F1': 'co', '\uE1F2': 'cu', '\uE1F3': 'c',
+            '\uE1F4': 'či', '\uE1F5': 'ča', '\uE1F6': 'čə', '\uE1F7': 'če', '\uE1F8': 'čo',
+            '\uE1F9': 'ču', '\uE1FF': 'fa', '\uE201': 'fe', '\uE202': 'fo', '\uE203': 'fu',
+            '\uE205': 'fi', '\uE206': 'fya', '\uE208': 'fye', '\uE209': 'fyo', '\uE20A': 'fyu',
+            '\uE210': 'ha', '\uE211': 'hə', '\uE212': 'he', '\uE213': 'ho', '\uE215': 'h'
+	};
+
+	const wordMap = {
+            'abaši':'菊','acə':'振','ače':'原','aco':'蔥','aču':'茲','ae':'葉','afa':'房','afo':'或','ag':'落/堕','age':'藍','agewega':'藍日','ago':'永遠','ahə':'何','aja':'姜','aji':'僅/莭/吟/詠/庁','ajiji':'校','ako':'兄','ale':'花','ali':'莉/暦/薬','amez':'漢字','amu':'玉','amyo':'可愛','apuba':'青紫色','as':'知/広','aša':'联','ašas':'联車','asčisa':'広場','aspe':'席/座','atə':'純','aya':'下/底','ayajoca':'下同根','az':'着','aza':'店','azas':'店人/店員','azu':'薯','azufeza':'薯炸','ba':'色/彩','babiğu':'凤','bac':'軍','baga':'翰','bağu':'白','bağutube':'白金','baji':'包','bare':'抱','bašiji':'貧血','baxiba':'柔','baxya':'幼','bayo':'皇','bayokowa':'皇囯','be':'父/北/察/賜','beča':'平䒭','becona':'北延語','bedaze':'巻','bedazeaza':'巻店','bedazetu':'巻堂/巻舘','bedu':'賭','beği':'平和','beğu':'平','beko':'問','beliji':'便利','belijiaza':'便利店','beqi':'平果','beri':'二','bes':'祭','beyo':'油','beyos':'油車','beyu':'得','beza':'平行','bi':'真','biaya':'真下/真底','bibağu':'真白','bica':'小人','bidac':'真青','bidafo':'真赤','bigeyoba':'真黄','bigo':'江','bihe':'㓗/淨','biji':'無','bikoši':'真名','bipesa':'真上','biresa':'真端/真末','biri':'清','biridac':'清青','biridafo':'清赤','birigeyoba':'清黄','biriha':'真冬','birimulye':'清本/清素','birislu':'清緑','biruši':'真㒱','bišada':'真毒','bisapi':'真夏','bise':'减','biši':'氷','bišimuri':'氷菓','bislu':'真緑','bisoka':'真面','biyağu':'真玄/真黒','bizori':'真中','bobe':'登','boka':'発','bu':'我','bus':'西','buscona':'西延語','ca':'京','ča':'䒭/子','cacasri':'金剛石','cače':'疑','cačego':'疑感','cago':'家具','cagomulye':'金紅本/金紅素','cagosri':'金紅石','cağu':'苦','čamu':'栗','čamuba':'栗色','čamumudocu':'栗木','čaqu':'強','cate':'仮生','catexa':'金残香','catu':'在','caxi':'十二','ce':'氏/澗/速/建/所/送','cə':'錦/絹/对','če':'笑/治','čə':'転','čebena':'青平語','čebenyasa':'青平島','cec':'手/適','čecə':'独','čeči':'欺','cecs':'手車','cecu':'过/経','ceji':'十六','čejiğuji':'哲斈','ceko':'舌','čele':'精錬','čena':'献','cənyoja':'对方','cənyojasši':'对方線','čepo':'政府','čeqa':'川','ceqi':'華','cəre':'望','čere':'清浄','ces':'虹','češe':'猿','ceši':'経済','cešiğuji':'経済斈','cəšiji':'农','cešiz':'逰','ceso':'道','česo':'兽','česogo':'兽園','cesogši':'道戯','česoka':'笑面','ceta':'簡単','ceya':'逆','čeyaji':'精液','čezə':'跡','cfa':'往/时','cga':'軒','chamu':'省','či':'該/十四/除/㚑','čije':'改定','čijija':'適时','čijijiji':'計㓰','čimi':'催眠','čino':'鳮乳','čipemi':'㚑血','čis':'軽','čisa':'場/遠','čiša':'追念','čišago':'追念園','čismulye':'軽本/軽素','čiso':'後','čisoize':'後髪','čixyo':'概要','čiz':'塡','čiza':'作/創','čizas':'作人/作者/創者','čizo':'動/踵','čizoifa':'動画','čizu':'土','cji':'健','cle':'輪','co':'処/蛍/延','čo':'通','cobi':'迸','cobigo':'延江','cobu':'还','coca':'迯','coda':'辺','cofoji':'蛍灯','cofuli':'進/就','cohəquhə':'延種','coji':'追/运','cokowa':'延囯','coma':'迎','čomaji':'小漠','come':'逸','comulye':'蛍本/蛍素','comulyekowa':'延本囯','čose':'小沙','cosi':'選','čošo':'小妙','cosri':'蛍石','cowə':'如其','čoxi':'小矣','cpa':'傍','cpi':'彼','cra':'軟','creri':'南','cšabišipis':'遠氷星','cu':'丑','čuba':'准俻','čujiqu':'最高','cuma':'売','cuxiji':'統一','cxi':'之/去','cxyu':'優','cze':'犯','da':'巳','daba':'亦/分/判','dabasocəpefe':'色承牌','dac':'青','dači':'弾指','dacmulye':'青本/青素','dacwega':'青日','dacyo':'青脉','dafo':'赤','dafomulye':'赤本/赤素','dafošibu':'赤外','dafowafo':'赤珉','dafowega':'赤日','dafoyo':'赤脉','dafu':'刃','dag':'介','dago':'功','daja':'刺','daji':'剧','dajitu':'剧堂/剧舘','dašeji':'师','daxi':'立','daxili':'重','daz':'到/奪','dazu':'犬/貫','dazumure':'貫見','deče':'大正','degajaza':'大雨时行','deši':'大載','deto':'大数','dezaji':'大極','dezo':'鬦','doa':'危','dočiji':'団結','docu':'伝統','dona':'全能','dote':'全智','e':'茶/訳/筆/謹','eba':'茶色','ebu':'頻','ecə':'脣','eči':'請','edo':'議','efi':'慧','eğa':'話','ego':'講','eğuji':'化斈','eğujite':'化斈線','eji':'説','ejiğuji':'説斈','ejikas':'説塊','ele':'論','elemulye':'論本/論素','eletu':'論堂','ema':'読','eru':'訪','es':'訳人/訳者/頚/試','eši':'記','eza':'閃','facu':'月','fae':'也','fajisu':'拍手','fanə':'熊','fareči':'旗','fas':'礬','fasmulye':'礬本/礬素','faso':'受','fe':'煩','feco':'烛','fera':'破産','feso':'焘','fesu':'越/孰/誰','feya':'烧','feza':'炸','fezu':'主','fiğuji':'科斈','fijila':'配慮','fili':'解','fiši':'掃星','foa':'炭','foamulye':'炭本/炭素','fog':'烙','fogo':'烘','fohə':'秋','foji':'灯','fona':'火','fopu':'烞','fora':'燃','fore':'光','foši':'燻','fu':'虎','fubya':'飇','fuce':'所','fuco':'処','fudo':'豊','fuji':'釜/隐','fujixya':'酷暑','fujiza':'酷寒','fuka':'斧','fulu':'六/陸','fupe':'艮','fupeba':'艮色','fusaji':'瞬息','fute':'腐','fuza':'口琴','ğa':'羊','ğada':'輝','gaju':'宇宙','ğaši':'空/虚','ge':'現','gecə':'城','gecəaji':'城庁','gecəalabi':'城立','ğəja':'会社','ğəne':'会議','gešis':'現神','geyez':'散','geyoba':'黄','geyobawega':'黄日','geyu':'射','geyurisa':'射的','ğiča':'禾登','go':'感/同/園/竹','gobazu':'弾','godapaze':'虹蔵不見','gohage':'紅花栄','gonali':'鴻雁来','gonapiji':'鴻雁北','gopeji':'完璧','goši':'恐/恭','goze':'虹見','gri':'㦮','gši':'戯','ğu':'毫/候','ğuce':'候間','ğufuji':'号哭','ğuji':'斈','ğujima':'斈問','ğujite':'斈生','ğusa':'倉','ğusapi':'甚','ğuši':'固','ğuxi':'多','ğuzaji':'穷極','gz':'歌','gzmulye':'歌本/歌素','hacasae':'花岡岩','hado':'明動','hajizu':'不','halu':'乃','hare':'行','harepis':'行星','hata':'始','hayəšuji':'丘引出','həbi':'秘','hefo':'緎','həgo':'秀','heli':'助','helis':'助人/助者','həquhə':'種','həši':'稀','hkee':'褐茶','hɯke':'褐','hɯkemita':'褐糖','hɯkewega':'褐日','ho':'利','hoeji':'利説','hoko':'空港','hosaji':'凶噐','i':'踏/㪯/余/予','iba':'習','ica':'四','ifa':'飜/画','ifamuji':'画機','ifatu':'画堂/画舘','ife':'飛','ifegeyez':'飛散','ifemuji':'飛機/飛械','ifi':'雪','igo':'式','ija':'鮫','iji':'午','ijiha':'電','ijisfa':'午飯','ili':'翌','ilirisa':'翌㱑','iliza':'翌朝','ilu':'露','iri':'夕/昔','is':'電','isa':'馬','isfoji':'電灯','isgši':'電戯','ismulye':'電本/電子','iss':'電車','iz':'書','ize':'髪','izjida':'書則','izo':'史','izu':'鳥/母','izukowa':'母囯','jace':'时間','jağə':'社会','jaji':'斤/夜','jajiko':'石咸','jajixise':'夜天','jalate':'尚良生','jamaji':'字㠳','jašiji':'字莭','jašizu':'善心','jə':'阥','jəbijuča':'執虫振','jəbijufiga':'執虫坏戸','jega':'今日','jəme':'画面','jene':'自然','jenena':'自然語','jenerexya':'自然価/自然数','jənu':'電脳','jəqu':'矢句','jere':'琴','jeyu':'自由','ji':'亥/今/鉄/錫','jiba':'盤/鉄色','jibida':'割','jicə':'孤','jiče':'水','jiceso':'鉄道','jiči':'初','jičicona':'初延語','jico':'好','jicu':'雏','jičusa':'玄鳥去','jida':'則','jig':'苦痛','jigo':'鈆','jiğu':'喜/悦/醜','jiğugo':'喜感','jije':'捲','jiji':'食','jijije':'寂静','jilu':'錄','jirisa':'今㱑','jis':'居/住','jisa':'趾/円/歩/形','jisaji':'近','jisašiz':'形紙','jiši':'雨','jiso':'踌/頂','jisu':'銹','jitə':'銅','jitəba':'銅色','jito':'市','jixi':'草/鸚','jixiba':'草色','jiz':'法','jiza':'今朝','jizo':'前/帰/命','jizoize':'前髪','jiztu':'法堂/法院','jizu':'笛','jizuze':'亲','jo':'兆/勇','joca':'同根','jočijiha':'同結花','jočo':'桃笑','joda':'銅像','jome':'周鳴','jošiji':'調莭','ju':'九','jubi':'十','jubo':'豆腐','jufu':'䑕','jugeko':'害','jugekotexiji':'害性愛','juji':'叫','jujiri':'独裁','jujiris':'独裁人/独裁者','kaba':'鉱夫','kas':'塊/甘','katu':'生','katuz':'生时','kawa':'曲','kaxi':'口','kayaša':'勝','kec':'尺','kesa':'谷','kexe':'飲','kobaxi':'足','koda':'感謝','kofa':'頗','kofamuko':'誤答','koge':'界','kogo':'訴/公園','kojinağu':'掘魚群','kole':'広罗','konabi':'工業','konyo':'告','kopi':'雷','koši':'名/呼','kowa':'狂/囯','kowaeletu':'囯論堂','kowalabi':'囯立','kowi':'味','koxili':'量','koyaji':'公式','la':'厘','labajis':'刄服人/刄服类','labi':'立','lapučə':'凉風至','lasašamulye':'麦苦土本/麦苦土素','lasašasri':'麦苦土石','late':'理性','laxyes':'刄声人/刄声类','laza':'旅行','le':'零','leda':'地図','leğu':'地球','leğune':'地球儀','lejia':'頼耶','lesa':'三/入/参','lesaxiko':'入門/入口','leši':'蓮開','leto':'地凍','li':'寅/辛','libago':'疲感','lida':'但/只','likeji':'难','liko':'加','lime':'敏','liri':'音','lis':'待','lisa':'諸','lisaregolu':'諸同論','lisas':'諸人/万人','lišiji':'雷切','lixi':'都','lixiaji':'都庁','lixilabi':'都立','lixisabaji':'都民','lixizori':'都中','lixizuji':'都斈','lixyuxye':'雷収声','liz':'勢','lojidomulye':'緑柱本/緑柱素','lojidosri':'緑柱石','lojidowafo':'緑柱珉','lopo':'联邦','lopona':'联邦語','lu':'論','luji':'六','lujičiji':'六惪','lujigo':'楽園','lulu':'鹿','lye':'四','lyefos':'㭗','lyefosgo':'㭗感','lyuji':'識','ma':'万/騒','mac':'駅','mačo':'球','mae':'文化','maetu':'文化堂/文化舘','maji':'未','majiji':'無敵','mala':'無量','mari':'莫','mate':'㒱星','matu':'坐','maza':'模古','mazuče':'騒笑','me':'微','mebi':'巳/蛇','meče':'突','mečo':'求','mefa':'完','meg':'客','meji':'响','mele':'摩罗','meli':'宮','melyo':'肉/育','mepabi':'魔法','mepoši':'綿不開','mere':'冗','merire':'寒','mesu':'宿','mexi':'醒','meye':'間','meyeroğu':'間股','mez':'字/定','mezjisa':'字形','mezu':'兎','mi':'写','mic':'紫','mičaga':'梅子黄','mice':'睡','micriše':'紫晶','micšibu':'紫外','micwega':'紫日','mifu':'粉','miği':'蛙','mihə':'種','miji':'精','mijiba':'日盤','mijica':'日記','mikote':'冨','mima':'続','mipu':'塩','mipumulye':'塩本/塩素','miqu':'蜜','miqujiji':'米角解','mis':'家','mišiči':'七','miso':'索','mita':'糖','mite':'番','mixi':'来','miz':'困','miza':'桃/搾','mizaba':'桃色','mize':'盏','mizeqi':'桃華','mizgo':'困感','mo':'共','moeji':'共説','moğa':'関','mohə':'合','momis':'共家','mos':'共車','moša':'閉','mosos':'共持','mu':'栄','muča':'橋','muce':'睑','mudocu':'木/樹','mufa':'十八','mug':'眼','muğu':'十七','mujiba':'朱黄色','mujicaji':'目測','mujilu':'勿論','mukoba':'杏色','mukomudocu':'杏木','mula':'欄','mulye':'林/森/本/素/貭','mumu':'相','muni':'桜','muniale':'桜花','munimudocu':'桜木','mure':'見/覌','murerisa':'見的','muri':'菓','muše':'斍','mušica':'舞','muta':'壮丹','mutaga':'壮丹華','mutu':'山茶','mutuale':'山茶花','mutue':'山茶茶','muxi':'未','muxyez':'未日','muz':'李','muzmudocu':'李木','myu':'权/由','myuši':'轡','na':'五/午/語','nadapa':'魚上氷','nafo':'然','nana':'言語','naxi':'乳','naza':'艮行','nejite':'熱線','ni':'二/痍/美','nijicučə':'麦秋至','niko':'人工/如','nikona':'人工語','nile':'連','nimi':'妹','nis':'姉','nixi':'嬰','niz':'特','npi':'疲','nu':'卯','nuda':'偶像','nujičiji':'外界','nujičijis':'外界人','nuxwa':'任意','nya':'嬢//痕','nyaha':'鴞','nyako':'鳴','nyašu':'破','nyazafu':'鳮','nyesu':'束','nyoja':'方','nyoma':'男陰','nyomasoma':'男陰毛','nyoši':'牺','nyošišizu':'牺心','nyu':'痛','nzu':'瘁','nzuropepe':'瘁弱','o':'茂','omulye':'茂林/茂森','pa':'分','pabi':'病','pabitu':'病堂/病院','pača':'分之','pada':'不詳','pajə':'放電','pajəmulye':'放電本/放電素','paji':'百','pajimujitu':'博物堂/博物舘','pamu':'床','pasa':'不思','pato':'放送','pazate':'半夏生','pefa':'板','pefe':'牌','pefu':'矢','pegə':'隔','peji':'要','pejuda':'内','pejudaroğu':'内股','pejudasči':'内靴','pejudasqa':'内袴','pejudazofu':'内服','peli':'力','pemi':'血','pemiba':'血色','pesa':'上','pesajoca':'上同根','pez':'乏','piji':'八','pijičijijetu':'閉塞成冬','pis':'星','pisbigo':'星江','pixi':'開','poči':'变態','pučuga':'楓鳥黄','pufa':'放','pugo':'攻/伐','puğu':'故','puka':'考','pyomiji':'秘密','qu':'九/君/溝','qujihaši':'菊花開','qula':'憂慮','qulu':'降臨','qumyo':'蚊','qupučə':'温風至','ra':'那','re':'頌/従/垂/代/掖','rea':'安','reaka':'自','reba':'保/余','rebi':'次','reca':'倸','recade':'竜','rece':'千/従送','rečə':'停/止','rečetu':'地','rečetuaya':'地下/地底','reda':'信頼','refa':'倣/仮','refakoši':'仮名','refaliz':'仮勢','refaruši':'仮㒱','refašiximuji':'仮憶機','refu':'仾','reko':'信','reli':'伤/位','relimulye':'位本/位子','rema':'慢/満','remašizu':'慢心','renə':'態','repu':'侮','reri':'尔','res':'従人/従者/仐/似/仕/傄','resa':'端/末','resez':'従指','reši':'吸','resšire':'似児','resu':'役/休','resus':'役人/役者','resusez':'役指','resutexiji':'役性愛','resuwega':'休日','reta':'伐','retexiji':'従性愛','rewe':'不正/偉','rewi':'微/化','rexi':'依','rexiši':'億','rexya':'価/数','reyə':'伝','reyu':'右','rez':'技','reze':'州','rezeaji':'州庁','rezelabi':'州立','rezeyu':'侵','rezeyus':'侵人','rezo':'仲','ri':'千','ribuji':'百合','rica':'豆','riči':'日気','ricu':'其时','rifa':'裁判','rifas':'裁判人/裁判者','riğez':'旧日','riğu':'旧/昔/古','riha':'冬','rija':'早','riji':'戌','rilyu':'資料','rini':'女','rinišire':'女児','rinišis':'女神','rino':'次元','rire':'听','ris':'升/雲','risa':'㱑/的','riše':'圣/晶','ritə':'春','ritəba':'春色','rixi':'映','rixya':'晩','riz':'是/时','riza':'昨/暫','rizarisa':'昨㱑','rizaza':'昨朝','ro':'五','roče':'脚','roğas':'万','roğu':'股','roja':'交','rojima':'絶望','roko':'若','rope':'弱','rošu':'離','ru':'務/努','rugz':'務歌/努歌','ruju':'納','ruri':'財','ruši':'㒱','rušiali':'㒱暦','rušiba':'㒱色','rušikowa':'㒱囯','rušilixilopo':'㒱都联邦','rušilo':'㒱联','rušimez':'㒱字','rušimuxi':'㒱未','ruširiğu':'㒱旧','ruxi':'亡','ruxyuda':'遇','ruxyudaceso':'遇道','rya':'暁','ryapis':'暁星','s':'人/者/員/車','sa':'糸/出/尻/仁','ša':'当/哀/肴/忘/箱','sabaji':'民','sači':'計','sačimuji':'計機','šada':'毒','sadaza':'静','sadazače':'静笑','sae':'岩','šafo':'域','šafoaji':'域庁','sage':'战','sago':'友','šago':'哀感','sağu':'十三','saji':'影','sajiča':'擦子','šajičejina':'頼祭魚','sajido':'猟巣','sajipa':'気分','sajirenə':'影態','sami':'紹','šamo':'小','šamoajiji':'小校','šamofacu':'小月','šamosez':'小指','sana':'会/集','sanubice':'先入見','šanunojixya':'土潤辱暑','sanya':'島','šanya':'雀','šape':'少','šapes':'少人','šapešiss':'少性人','sapi':'夏','sare':'長/永','sareize':'長髪','saremimo':'長襪','šaša':'向/米','sašisu':'苦菜秀','sašizu':'仁心','saxiko':'出門/出口','sayeji':'去勢','saze':'僧示','sazo':'崇','sbi':'烏','sča':'矫','sči':'靴','se':'䊹/山/岳','sə':'紋','še':'池','seca':'産/揷','šeco':'窓','šecošibu':'窓外','šeda':'貧','seji':'推','sejileme':'脊令鳴','selojisae':'閃緑岩','šemuda':'冥','šetu':'塞','seya':'揺','seye':'爰','sez':'指','seza':'杖','sezaji':'指莭','sezkoši':'指呼','sezresa':'指端','sfa':'飯','sfu':'礼/弓','sgo':'身','sha':'骨','shadaba':'骨色','shamulye':'骨本/骨素','shə':'給','ši':'易/愚/鱼/慾','šibu':'外/流','šibupis':'流星','šica':'才/滲','šicə':'浊','šiče':'泉','šiči':'汽/涙/済','šičis':'汽車','šico':'銃','šida':'滞','šifa':'湾/狂喜/狂悦','šifago':'恍感','šifu':'浮/湖/浦','šigo':'恋感/汞','šiğulu':'片','šiji':'七/十一/驚','šijičo':'失踪','šijine':'刹那','šijišiji':'失策','šijuejəbi':'菜虫化蝶','šila':'瀬','šilesaji':'天地粛','šili':'泣','šima':'茫/新聞/涜','šimaeji':'茫説','šime':'海','šimeba':'海色','šimeyekowa':'海間囯','šine':'思','šinə':'濃','šinədac':'濃青','šinədafo':'濃赤','šinəgeyoba':'濃黄','šinəslu':'濃緑','šini':'汝/怒','šipe':'必','šipi':'波','šire':'児','širez':'児时','širo':'沈','šis':'尤/声/浅/性/神','šisa':'弟/沙','šiša':'港','šišeče':'深','šisfa':'夕飯','šiši':'洒/惜','šišiyoši':'惜用','šisko':'消','šismulye':'性本','šissčarini':'性矫女','šissčas':'性矫人','šissčateli':'性矫男','šita':'怠','šitoge':'易乗','šitogemac':'易乗駅','šixa':'㓇','šixamulye':'㓇本/素','šixi':'憶/湮/恩','šiximuji':'憶機','šixya':'悪/恨','šixyašizu':'悪心','šiz':'愛/紙/織','šiza':'漸','šizawa':'淫','šize':'嫌','šizo':'潮/忠','šizošizu':'忠心','šizu':'心','sji':'社/団','sjizu':'車笛','sla':'率','sli':'䃯','slu':'緑','slumulye':'緑本/緑素','sluwega':'緑日','slyo':'硫','slyoba':'硫色','smido':'一','snexi':'世','so':'三','šo':'秒','sobe':'八','socə':'承','soda':'拓','sodo':'短','sodoize':'短髪','sodosqa':'短袴','sodoxiko':'短裳','šogaji':'超越','sogo':'抗/引','sogotu':'抗堂','sohə':'十','soji':'扫/打/㐿','soka':'拷/面','solu':'掳','soma':'摩/擦/毛','somae':'毛筆','sopi':'旋/巡/週','sorišu':'掲','sos':'持','soze':'牽','spi':'砒','spo':'硼','spomulye':'硼本/素','sqa':'袴','sre':'死','sremulye':'死本/死素','srewega':'死日','sri':'石','sša':'鮮','sši':'線/性','sšimulye':'性本','ssu':'縮','sšu':'祝','šu':'酒/泳/党/温','suceji':'手製','sufu':'風','sufumuji':'風機','sujiji':'宿題','sulabaji':'草露白','sumujihado':'草木明動','suri':'香','šušiče':'温泉','sxi':'頭','sxizu':'頭虫','ta':'艾/圧','taba':'艾色/散歩','tačašujimyo':'霜止出苗','tajipufajiyebi':'朔風払葉','tako':'単軌','taqu':'霜降','te':'番','teba':'畑','teču':'性交','tei':'展示','teitu':'展示堂/展示舘','teli':'男','telišira':'男児','telišis':'男神','tena':'性能','tesa':'酸','teši':'畓','texiji':'性愛','toaju':'高','toba':'大/算盤','tobaajiji':'大校','tobafacu':'大月','tobasez':'大指','tobawačopis':'大环星','tobe':'棄','toge':'乗','tona':'宣言','tone':'主義','topujito':'東風解凍','tosa':'東枯','toša':'胸','tote':'東生','toyaji':'算式','tozuji':'数斈','tu':'堂/院/舘','tube':'金','tubeba':'金色','tubi':'壁','tubijase':'妾时施','tuda':'切/塔','tufa':'兆/防','tufu':'附','tuga':'確','tugo':'物/品','tugomulye':'物本/物素','tuhe':'墨','tuheba':'墨色','tuli':'埋','tulye':'野','tulyečeso':'野兽','tupyo':'坪','tupyosla':'坪率','tušaba':'根','tuz':'増','tuzu':'樽','u':'毎/成','uko':'吾','ulyo':'滅','wabe':'買','wačo':'环','waeda':'罰','wafa':'罔','wafo':'玉石/宝玉','waji':'䄀','wajipa':'黒板','wamu':'染','waxi':'玉色','waxiğu':'琉','waze':'怨','we':'起','weba':'邑','webaaji':'邑庁','webamu':'目','weča':'微章','wega':'日','wəji':'忽','wes':'田','weye':'十五','wez':'日','wezmulye':'日本/日素','xa':'阥','xaču':'虎交','xado':'安全','xaho':'虚空','xaji':'億','xale':'亜鈴','xamaji':'兴味','xasesae':'安山岩','xibe':'事','xiči':'其','xidodo':'水泉動','xigoša':'東','xijajipujiči':'水沢腹坚','xije':'而','xiji':'一/巾/衾','xijifa':'愛模','xijifu':'一品','xijiši':'一体','xijiyaji':'愛液','xiko':'裳/門','xili':'里','xinya':'焉','xipa':'水氷','xipe':'豚','xipi':'被','xipitexiji':'被性愛','xis':'人/者/員/巨/卆/罢','xiša':'示','xišaši':'衰','xise':'天','xiseba':'天色','xisekec':'天尺','xiši':'桜開/褶','xišixiko':'褶裳','xismudocu':'巨木/巨樹','xismyu':'人权','xiz':'百','xiza':'装','xizaji':'水古','xwayo':'亜鈆','xya':'竟','xyani':'幸','xyazči':'催','xyazo':'赱','xyə':'申','xyonubi':'輸入','xyošuji':'輸出','xyu':'元','xyuji':'幾','ya':'阦','yacfu':'覄','yafo':'洋','yağu':'玄/黒','yajita':'食単','yapu':'飬/教','yapumulye':'飬本/飬素','ye':'誕/緩','yebe':'貿','yebezori':'貿中','yebičamulye':'葉長本/葉長素','yebičasri':'葉長石','yeči':'能','yefu':'腹','yega':'何时','yəği':'魂','yeju':'明','yelya':'朗','yes':'女陰','yessoma':'女陰毛','yətu':'均','yewega':'誕日','yezu':'遯','yo':'脉','yohaji':'愉快','yoji':'異','yopuji':'鈆筆','yoši':'用','yošiši':'威','yu':'酉/更/改/療/霧','yuda':'順序','yufo':'灰/糸','yufoba':'灰色','yuği':'牛','yuğinaxi':'牛乳','yugo':'逰園','yuji':'有','yuse':'由他/醎','yuzu':'酔','z':'降/斈/时','za':'王/朝','zadame':'寒単鳴','zage':'斤栄','zaji':'仮逮','zaju':'敢','zakowa':'王囯','zaliğu':'恋','zaloma':'互联網','zase':'競争','zasfa':'朝飯','zaši':'如何/奚','zaxi':'載','zazu':'丈','zda':'脳/臭','zdamulye':'臭本/臭素','ze':'津','zeči':'膝','zehe':'可憐','zesa':'变/為','zesaye':'变誕','zese':'河沙','zgo':'鼻','zji':'新','zla':'孝','zmixi':'庶','zmya':'猫','zo':'跳','zobi':'殺/左','zofu':'服','zolesa':'跳入','zomuce':'最','zori':'中','zoriajiji':'中校','zorimuji':'中機','zorisez':'中指','zri':'正','zrimuko':'正答','zša':'京','zšaaji':'京庁','zšala':'京立','zši':'志/意/惪','zšišizu':'惪心','zu':'虫/企','zube':'篇','zuğufo':'為','zuji':'井','zuze':'即'
+        };
+
+        document.getElementById('inputArea').addEventListener('input', function (event) {
+            const inputArea = event.target;
+            const inputValue = inputArea.value;
+            const lastChar = inputValue.slice(-1);
+
+            if (charMap.hasOwnProperty(lastChar)) {
+                OutUni += charMap[lastChar];
+                inputArea.value = inputValue.slice(0, -1);
+            } else if (naturalNumbers.hasOwnProperty(lastChar)) {
+                OutUni += naturalNumbers[lastChar];
+                inputArea.value = inputValue.slice(0, -1);
+                inputArea.value += String.fromCharCode(OutUni);
+                OutUni = 57600;
+            } else if (adds.hasOwnProperty(lastChar)) {
+                inputArea.value = inputValue.slice(0, -1);
+                inputArea.value += adds[lastChar];
+            }
+        });
+
+        document.getElementById('inputArea').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const inputArea = event.target;
+                const inputText = inputArea.value;
+                let convertedText = '';
+                let foundWord = '';
+
+                // Find the word from the end
+                for (let i = 0; i < inputText.length; i++) {
+                    const subString = inputText.slice(-i-1);
+                    convertedText = '';
+                    for (let char of subString) {
+                        if (conversionMap[char]) {
+                            convertedText += conversionMap[char];
+                        } else {
+                            convertedText += '?';
+                        }
+                    }
+                    if (wordMap[convertedText]) {
+                        foundWord += wordMap[convertedText] + '\n';
+                    }
+                }
+
+                document.getElementById('outputArea').value = foundWord ? foundWord : '';
+            }
+        });
+    </script>
+</body>
+</html>
