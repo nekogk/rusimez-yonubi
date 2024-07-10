@@ -1,1 +1,1 @@
-https://nekogk.github.io/rusimez-yonubi/index.HTML menəyonubileda.
+https://nekogk.github.io/rusimez-yonubi/index.HTML menə roponamye yonubileda.
